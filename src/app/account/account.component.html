@@ -1,0 +1,74 @@
+<div _ngcontent-bov-c501 class="x">
+  <mat-grid-list cols="2">
+    <mat-grid-tile>
+      <mat-list role="list">
+        <p mat-subheader>Source Account</p>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="createAndGetSourceAccount()"
+            >
+              Create account
+            </button>
+          </div>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          Public key:
+          <p *ngIf="sourceIsCreate">
+            {{sourceAccount.publicKey.substr(0,5) + '...'}}
+          </p>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem" *ngFor="let element of account.balances">
+          Balance:
+          <p *ngIf="sourceIsCreate">
+            <strong
+            >{{element.asset_type}} {{element.balance | number:'1.0'}}</strong
+            >
+          </p>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem">Item 2</mat-list-item>
+        <mat-list-item role="listitem">Item 3</mat-list-item>
+      </mat-list>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-list role="list">
+        <p mat-subheader>Destination Account</p>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="createAndGetDestinationAccount()"
+            >
+              Create account
+            </button>
+          </div>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          Public key:
+          <p *ngIf="destinationIsCreate">
+            {{sourceAccount.publicKey.substr(0,5) + '...'}}
+          </p>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem" *ngFor="let element of account.balances">
+          Balance:
+          <p *ngIf="destinationIsCreate">
+            <strong
+            >{{element.asset_type}} {{element.balance | number:'1.2'}}</strong
+            >
+          </p>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem">Item 2</mat-list-item>
+        <mat-list-item role="listitem">Item 3</mat-list-item>
+      </mat-list>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
