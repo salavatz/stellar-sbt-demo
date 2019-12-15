@@ -1,74 +1,290 @@
-<div _ngcontent-bov-c501 class="x">
-  <mat-grid-list cols="2">
-    <mat-grid-tile>
-      <mat-list role="list">
-        <p mat-subheader>Source Account</p>
-        <mat-list-item role="listitem">
-          <div class="button-row">
-            <button
-              type="button"
-              mat-flat-button
-              color="primary"
-              (click)="createAndGetSourceAccount()"
-            >
-              Create account
-            </button>
-          </div>
-        </mat-list-item>
-        <mat-list-item role="listitem">
-          Public key:
-          <p *ngIf="sourceIsCreate">
-            {{sourceAccount.publicKey.substr(0,5) + '...'}}
-          </p>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item role="listitem" *ngFor="let element of account.balances">
-          Balance:
-          <p *ngIf="sourceIsCreate">
-            <strong
-            >{{element.asset_type}} {{element.balance | number:'1.0'}}</strong
-            >
-          </p>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item role="listitem">Item 2</mat-list-item>
-        <mat-list-item role="listitem">Item 3</mat-list-item>
-      </mat-list>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <mat-list role="list">
-        <p mat-subheader>Destination Account</p>
-        <mat-list-item role="listitem">
-          <div class="button-row">
-            <button
-              type="button"
-              mat-flat-button
-              color="primary"
-              (click)="createAndGetDestinationAccount()"
-            >
-              Create account
-            </button>
-          </div>
-        </mat-list-item>
+<!-- <div _ngcontent-bov-c501 class="x"> -->
+<h2 class="mat-title">Create accounts</h2>
+<mat-grid-list cols="3">
+  <mat-grid-tile>
+    <mat-list role="list">
+      <mat-list-item role="listitem">
+        <h2 class="mat-h2">Source Account</h2>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <div class="button-row">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="createAndGetSourceAccount()"
+            [disabled]="sourceIsCreate"
+          >
+            Create account
+          </button>
+        </div>
+      </mat-list-item>
+      <p *ngIf="sourceIsCreate">
         <mat-list-item role="listitem">
           Public key:
-          <p *ngIf="destinationIsCreate">
-            {{sourceAccount.publicKey.substr(0,5) + '...'}}
-          </p>
+          <strong>
+            {{sourceAccount.publicKey.substr(0,10) + '...'}}
+          </strong>
         </mat-list-item>
         <mat-divider></mat-divider>
-        <mat-list-item role="listitem" *ngFor="let element of account.balances">
+        <mat-list-item role="listitem" *ngFor="let element of source.balances">
           Balance:
-          <p *ngIf="destinationIsCreate">
-            <strong
-            >{{element.asset_type}} {{element.balance | number:'1.2'}}</strong
-            >
-          </p>
+          <strong>
+            {{element.asset_type}} {{element.balance | number:'1.0'}}
+          </strong>
         </mat-list-item>
         <mat-divider></mat-divider>
-        <mat-list-item role="listitem">Item 2</mat-list-item>
-        <mat-list-item role="listitem">Item 3</mat-list-item>
-      </mat-list>
-    </mat-grid-tile>
-  </mat-grid-list>
-</div>
+        <mat-list-item role="listitem" *ngFor="let element of source.signers">
+          Signers:
+          <strong>
+            {{element.key.substr(0,5) + '...'}}
+          </strong>
+          with weight=
+          <strong>
+            {{element.weight}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem">
+          Sequence number:
+          <strong>
+            {{source.sequence}}
+          </strong>
+        </mat-list-item>
+      </p>
+    </mat-list>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-list role="list">
+      <mat-list-item role="listitem">
+        <h2 class="mat-h2">Oracle Account</h2>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <div class="button-row">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="createAndGetOracleAccount()"
+            [disabled]="oracleIsCreate"
+          >
+            Create account
+          </button>
+        </div>
+      </mat-list-item>
+      <p *ngIf="oracleIsCreate">
+        <mat-list-item role="listitem">
+          Public key:
+          <strong>
+            {{oracleAccount.publicKey.substr(0,10) + '...'}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem" *ngFor="let element of oracle.balances">
+          Balance:
+          <strong>
+            {{element.asset_type}} {{element.balance | number:'1.0'}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem" *ngFor="let element of oracle.signers">
+          Signers:
+          <strong>
+            {{element.key.substr(0,5) + '...'}}
+          </strong>
+          with weight=
+          <strong>
+            {{element.weight}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem">
+          Sequence number:
+          <strong>
+            {{oracle.sequence}}
+          </strong>
+        </mat-list-item>
+      </p>
+    </mat-list>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-list role="list">
+      <mat-list-item role="listitem">
+        <h2 class="mat-h2">Destination Account</h2>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <div class="button-row">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="createAndGetDestinationAccount()"
+            [disabled]="destinationIsCreate"
+          >
+            Create account
+          </button>
+        </div>
+      </mat-list-item>
+      <p *ngIf="destinationIsCreate">
+        <mat-list-item role="listitem">
+          Public key:
+          <strong>
+            {{destinationAccount.publicKey.substr(0,10) + '...'}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem" *ngFor="let element of destination.balances">
+          Balance:
+          <strong>
+            {{element.asset_type}} {{element.balance | number:'1.0'}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem" *ngFor="let element of destination.signers">
+          Signers:
+          <strong>
+            {{element.key.substr(0,5) + '...'}}
+          </strong>
+          with weight=
+          <strong>
+            {{element.weight}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem">
+          Sequence number:
+          <strong>
+            {{destination.sequence}}
+          </strong>
+        </mat-list-item>
+      </p>
+    </mat-list>
+  </mat-grid-tile>
+</mat-grid-list>
+<h2 class="mat-title" id="multisig">Multisig</h2>
+<mat-grid-list cols="3">
+  <mat-grid-tile>
+    <mat-list role="list">
+      <mat-list-item role="listitem">
+        <h2 class="mat-h2">Add oracle account signature to source account</h2>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <div class="button-row">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="addSourceAccountOracleSigner()"
+            [disabled]="!sourceIsCreate||signerIsAdd||!oracleIsCreate"
+          >
+            Add signer
+          </button>
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="paymentFromSourceToDestination()"
+            [disabled]="!signerIsAdd||paymentOneSignerIsAdd"
+          >
+            Send 50 XLM
+          </button>
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="sendXDRtoOracle()"
+            [disabled]="!paymentOneSignerIsAdd||xdrIsSend"
+          >
+            Send XDR to Oracle
+          </button>
+        </div>
+      </mat-list-item>
+      <mat-list-item role="listitem" *ngIf="error">
+        <h2 class="mat-h2" style="color:firebrick">Error: 1 signature from 2</h2>
+      </mat-list-item>
+      <p *ngIf="sourceIsCreate">
+        <mat-list-item role="listitem">
+          Public key:
+          <strong>
+            {{sourceAccount.publicKey.substr(0,10) + '...'}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem" *ngFor="let element of source.balances">
+          Balance:
+          <strong>
+            {{element.asset_type}} {{element.balance | number:'1.0'}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem" *ngFor="let element of source.signers">
+          Signers:
+          <strong>
+            {{element.key.substr(0,5) + '...'}}
+          </strong>
+          with weight=
+          <strong>
+            {{element.weight}}
+          </strong>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item role="listitem">
+          Sequence number:
+          <strong>
+            {{source.sequence}}
+          </strong>
+        </mat-list-item>
+      </p>
+    </mat-list>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-list role="list">
+      <mat-list-item role="listitem">
+        <h2 class="mat-h2">Oracle Account</h2>
+      </mat-list-item>
+      <mat-list-item role="listitem" *ngIf="xdrIsSend">
+        <h2 class="mat-h2">{{xdr.substr(0,10) + '...'}}</h2>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <div class="button-row">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="signAndSubmit()"
+            [disabled]="!xdrIsSend||signAndSubmitIsDone"
+          >
+            Sign and submit
+          </button>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-list role="list">
+      <mat-list-item role="listitem">
+        <h2 class="mat-h2">Destination Account</h2>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        Public key:
+        <p *ngIf="destinationIsCreate">
+          {{sourceAccount.publicKey.substr(0,5) + '...'}}
+        </p>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+      <mat-list-item role="listitem" *ngFor="let element of destination.balances">
+        Balance:
+        <p *ngIf="destinationIsCreate">
+          <strong
+          >{{element.asset_type}} {{element.balance | number:'1.2'}}</strong
+          >
+        </p>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+      <mat-list-item role="listitem">Item 2</mat-list-item>
+      <mat-list-item role="listitem">Item 3</mat-list-item>
+    </mat-list>
+  </mat-grid-tile>
+</mat-grid-list>
+
+<!-- </div> -->

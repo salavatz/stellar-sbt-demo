@@ -59,7 +59,8 @@
                 }
               ]
             }
-          }
+          },
+          "scripts": ["./node_modules/stellar-sdk/dist/stellar-sdk.min.js"]
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",

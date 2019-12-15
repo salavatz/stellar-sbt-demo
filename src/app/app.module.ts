@@ -8,8 +8,9 @@ import { MaterialModule } from './material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AccountComponent } from './account/account.component';
-import { RoutingModule } from './routing/routing.module';
-import {MatGridListModule} from '@angular/material/grid-list';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { AngularFireModule } from '@angular/fire';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -23,8 +24,8 @@ import {MatGridListModule} from '@angular/material/grid-list';
     MaterialModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
-    RoutingModule,
-    MatGridListModule
+    MatGridListModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig)
   ],
   providers: [],
   bootstrap: [AppComponent]
