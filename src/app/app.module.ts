@@ -11,6 +11,7 @@ import { AccountComponent } from './account/account.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { AngularFireModule } from '@angular/fire';
 import { environment } from '../environments/environment';
+import {MatFormFieldModule, MatInputModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,8 @@ import { environment } from '../environments/environment';
   ],
   imports: [
     BrowserModule,
+    MatInputModule,
+    MatFormFieldModule,
     MaterialModule,
     BrowserAnimationsModule,
     FlexLayoutModule,

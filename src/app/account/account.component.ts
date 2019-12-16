@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {MatInputModule} from '@angular/material/input';
 import * as StellarSdk from 'stellar-sdk';
 
 @Component({
@@ -36,6 +37,7 @@ export class AccountComponent implements OnInit {
   signAndSubmitIsDone = false;
   error = false;
   xdr: string;
+  envelop: any;
 
   constructor() {
     this.source = {};
@@ -51,8 +53,8 @@ export class AccountComponent implements OnInit {
     this.destination.balances = [{ balance: 0 }];
     this.destination.sequence = 0;
     this.originAccount = {
-      publicKey: 'GCRJGPQNIIDYNX655LWNRN6EAJ2JW7D6OXKFZEMZJRTVQSVSNEGWRHHW',
-      privateKey: 'SB5S2MVAJKEMI4CA6DGNZGV4YVO3KSASDKW7PEEWM35P5ICHQP2FIRYP'
+      publicKey: 'GAVRL3KUM3ZA7RAAIZWKU6SQCSDFW3O3G4XOPMTML4U243NPINLBJDUE',
+      privateKey: 'SAWD5FXGLRDPCV7Z7R26A6PZ2EAESGUBVI47QGZOFUSMFGMJNJH56WIK'
     };
   }
 
@@ -60,21 +62,20 @@ export class AccountComponent implements OnInit {
     await new Promise(resolve => setTimeout(() => resolve(), ms)).then(() => console.log('fired'));
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+
+  }
 
   createAndGetSourceAccount() {
     this.sourceAccount = this.createAccount('source');
-    this.sourceIsCreate = true;
   }
 
   createAndGetOracleAccount() {
     this.oracleAccount = this.createAccount('oracle');
-    this.oracleIsCreate = true;
   }
 
   createAndGetDestinationAccount() {
     this.destinationAccount = this.createAccount('destination');
-    this.destinationIsCreate = true;
   }
 
   createAccount(accountName: string) {
@@ -98,12 +99,11 @@ export class AccountComponent implements OnInit {
             .setTimeout(30)
             .build();
           transaction.sign(sourceKeys);
-          console.log(server.submitTransaction(transaction));
-        })
-      .then(() => {
-        this.delay(5000).then(any => {
-          this.getAccount(destination.publicKey(), accountName);
-        });
+          console.log(123);
+          server.submitTransaction(transaction).then((transactionResult) => {
+            console.log(JSON.stringify(transactionResult, null, 2));
+            this.getAccount(destination.publicKey(), accountName);
+          });
       });
     return { publicKey: destination.publicKey(), privateKey: destination.secret() };
   }
@@ -118,10 +118,13 @@ export class AccountComponent implements OnInit {
       .then(account => {
         if (accountName === 'source') {
           this.source = account;
+          this.sourceIsCreate = true;
         } else if (accountName === 'oracle') {
           this.oracle = account;
+          this.oracleIsCreate = true;
         } else {
           this.destination = account;
+          this.destinationIsCreate = true;
         }
         console.log(account);
       })
@@ -159,13 +162,9 @@ export class AccountComponent implements OnInit {
           .setTimeout(30)
           .build();
         transaction.sign(sourceKeys);
-        server.submitTransaction(transaction);
-      })
-      .then((result) => {
-        this.signerIsAdd = true;
-      })
-      .then(() => {
-        this.delay(5000).then(() => {
+        server.submitTransaction(transaction).then((transactionResult) => {
+          console.log(JSON.stringify(transactionResult, null, 2));
+          this.signerIsAdd = true;
           this.getAccount(sourceKeys.publicKey(), 'source');
         });
       });
@@ -197,6 +196,7 @@ export class AccountComponent implements OnInit {
           console.log(error);
         });
         this.xdr = transaction.toEnvelope().toXDR().toString('base64');
+        this.envelop = transaction.toEnvelope().toXDR();
       })
       .then(() => {
         this.paymentOneSignerIsAdd = true;
@@ -209,18 +209,22 @@ export class AccountComponent implements OnInit {
   signAndSubmit() {
     console.log('signAndSubmit');
     const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-    const oracleKeys = StellarSdk.Keypair.fromSecret(this.oracle.privateKey);
+    const oracleKeys = StellarSdk.Keypair.fromSecret(this.oracleAccount.privateKey);
+    const sourceKeys = StellarSdk.Keypair.fromSecret(this.sourceAccount.privateKey);
+    const destinationKeys = StellarSdk.Keypair.fromSecret(this.destinationAccount.privateKey);
     server.loadAccount(this.oracleAccount.publicKey)
       .then((oracle) => {
         // Start building the transaction.
-        const transaction = new StellarSdk.Transaction(this.xdr).sign(oracleKeys);
-        // server.submitTransaction(transaction).catch((error) => {
-        //   console.log(error);
-        // });
-      })
-      .then(() => {
-        this.error = false;
-        this.signAndSubmitIsDone = true;
+        console.log(this.xdr);
+        const transaction = new StellarSdk.Transaction(this.xdr, StellarSdk.Networks.TESTNET);
+        transaction.sign(oracleKeys);
+        server.submitTransaction(transaction).then((transactionResult) => {
+          console.log(JSON.stringify(transactionResult, null, 2));
+          this.error = false;
+          this.signAndSubmitIsDone = true;
+          this.getAccount(sourceKeys.publicKey(), 'source');
+          this.getAccount(destinationKeys.publicKey(), 'destination');
+        });
       });
   }
 }
