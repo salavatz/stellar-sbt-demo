@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {MatInputModule} from '@angular/material/input';
 import * as StellarSdk from 'stellar-sdk';
+import {THIS_EXPR} from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-account',
@@ -11,6 +12,7 @@ export class AccountComponent implements OnInit {
   source: any;
   oracle: any;
   destination: any;
+  transactionWithTimeBound: any;
   originAccount: { publicKey: string, privateKey: string} = {
     publicKey: '',
     privateKey: '',
@@ -27,7 +29,8 @@ export class AccountComponent implements OnInit {
     publicKey: '',
     privateKey: ''
   };
-
+  time = 0;
+  minTimeExpired = true;
   sourceIsCreate = false;
   oracleIsCreate = false;
   destinationIsCreate = false;
@@ -35,6 +38,8 @@ export class AccountComponent implements OnInit {
   paymentOneSignerIsAdd = false;
   xdrIsSend = false;
   signAndSubmitIsDone = false;
+  sendWithTimeBoundIsDone = false;
+  firstSendTimeBound = true;
   error = false;
   xdr: string;
   envelop: any;
@@ -169,6 +174,7 @@ export class AccountComponent implements OnInit {
         });
       });
   }
+
   paymentFromSourceToDestination() {
     console.log('paymentFromSourceToDestination');
     const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
@@ -202,10 +208,12 @@ export class AccountComponent implements OnInit {
         this.paymentOneSignerIsAdd = true;
       });
   }
+
   sendXDRtoOracle() {
     console.log('sendXDRtoOracle');
     this.xdrIsSend = true;
   }
+
   signAndSubmit() {
     console.log('signAndSubmit');
     const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
@@ -226,5 +234,44 @@ export class AccountComponent implements OnInit {
           this.getAccount(destinationKeys.publicKey(), 'destination');
         });
       });
+  }
+
+  sendWithTimeBound() {
+    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    const oracleKeys = StellarSdk.Keypair.fromSecret(this.oracleAccount.privateKey);
+    const destinationKeys = StellarSdk.Keypair.fromSecret(this.destinationAccount.privateKey);
+    if (this.firstSendTimeBound) {
+      this.firstSendTimeBound = false;
+      this.time = Math.floor(Date.now() / 1000);
+      console.log('sendWithTimeBound');
+      server.loadAccount(this.oracleAccount.publicKey)
+        .then((oracle) => {
+          const transaction = new StellarSdk.TransactionBuilder(oracle, {
+            timebounds: {minTime: this.time + 30, maxTime: this.time + 3600},
+            fee: StellarSdk.BASE_FEE,
+            networkPassphrase: StellarSdk.Networks.TESTNET
+          })
+            .addOperation(StellarSdk.Operation.payment({
+              destination: this.destinationAccount.publicKey,
+              asset: StellarSdk.Asset.native(),
+              amount: '30'
+            }))
+            .build();
+          transaction.sign(oracleKeys);
+          this.transactionWithTimeBound = transaction;
+          this.minTimeExpired = false;
+        });
+    } else {
+      server.submitTransaction(this.transactionWithTimeBound).then((transactionResult) => {
+        this.getAccount(oracleKeys.publicKey(), 'oracle');
+        this.getAccount(destinationKeys.publicKey(), 'destination');
+        if (Math.floor(Date.now() / 1000) - this.time < 30) {
+          this.minTimeExpired = false;
+        }
+        else {
+          this.minTimeExpired = true;
+        }
+      });
+    }
   }
 }
