@@ -45,9 +45,15 @@ export class AccountComponent implements OnInit {
   signAndSubmitIsDone = false;
   sendWithTimeBoundIsDone = false;
   firstSendTimeBound = true;
+  issueIsDone = false;
+  trustLineIsDone = false;
+  sendOracleDollarsIsDone = false;
+  createSendOfferIsDone = false;
+  createBuyOfferIsDone = false;
   error = false;
   xdr: string;
   envelop: any;
+  oracleDollar: any;
 
   constructor() {
     this.source = {};
@@ -63,8 +69,8 @@ export class AccountComponent implements OnInit {
     this.destination.balances = [{ balance: 0 }];
     this.destination.sequence = 0;
     this.originAccount = {
-      publicKey: 'GAVRL3KUM3ZA7RAAIZWKU6SQCSDFW3O3G4XOPMTML4U243NPINLBJDUE',
-      privateKey: 'SAWD5FXGLRDPCV7Z7R26A6PZ2EAESGUBVI47QGZOFUSMFGMJNJH56WIK'
+      publicKey: 'GDH44JN3XTOBKAKXI2NILE6OA4D2DETEW5QTXSDA3HBB5MTI36P6QUIO',
+      privateKey: 'SBMKV7HRFCSWSEYMCEXHMXTT35RGGBYFHXT77VT7ZXOMPAFFD5T2ZKNF'
     };
   }
 
@@ -312,6 +318,123 @@ export class AccountComponent implements OnInit {
           setTimeout(function() {
             document.getElementById('seqError').innerHTML = '';
           }, 3000);
+        });
+      });
+  }
+  issueAsset() {
+    console.log('issueAsset');
+    this.oracleDollar = new StellarSdk.Asset('oracleDollar', this.oracleAccount.publicKey);
+    this.issueIsDone = true;
+    console.log(this.oracleDollar);
+  }
+  createTrustLine() {
+    console.log('createTrustLine');
+    const oracleKeys = StellarSdk.Keypair.fromSecret(this.oracleAccount.privateKey);
+    const destinationKeys = StellarSdk.Keypair.fromSecret(this.destinationAccount.privateKey);
+    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    server.loadAccount(this.destinationAccount.publicKey)
+      .then((source) => {
+        const transaction = new StellarSdk.TransactionBuilder(source, {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase: StellarSdk.Networks.TESTNET
+        })
+          .addOperation(StellarSdk.Operation.changeTrust({
+            asset: this.oracleDollar,
+            limit: '1000'
+          }))
+          .setTimeout(30)
+          .build();
+        transaction.sign(destinationKeys);
+        server.submitTransaction(transaction).then((transactionResult) => {
+          console.log(JSON.stringify(transactionResult, null, 2));
+          this.getAccount(oracleKeys.publicKey(), 'oracle');
+          this.getAccount(destinationKeys.publicKey(), 'destination');
+          this.trustLineIsDone = true;
+        });
+      });
+  }
+  paymentFromOracleToDestination() {
+    console.log('paymentFromOracleToDestination');
+    const oracleKeys = StellarSdk.Keypair.fromSecret(this.oracleAccount.privateKey);
+    const destinationKeys = StellarSdk.Keypair.fromSecret(this.destinationAccount.privateKey);
+    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    server.loadAccount(this.oracleAccount.publicKey)
+      .then((source) => {
+        const transaction = new StellarSdk.TransactionBuilder(source, {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase: StellarSdk.Networks.TESTNET
+        })
+          .addOperation(StellarSdk.Operation.payment({
+            destination: this.destinationAccount.publicKey,
+            asset: this.oracleDollar,
+            amount: '50'
+          }))
+          .setTimeout(30)
+          .build();
+        transaction.sign(oracleKeys);
+        server.submitTransaction(transaction).then((transactionResult) => {
+          console.log(JSON.stringify(transactionResult, null, 2));
+          this.getAccount(oracleKeys.publicKey(), 'oracle');
+          this.getAccount(destinationKeys.publicKey(), 'destination');
+          this.sendOracleDollarsIsDone = true;
+        });
+      });
+  }
+  createBuyOffer() {
+    console.log('createBuyOffer');
+    const oracleKeys = StellarSdk.Keypair.fromSecret(this.oracleAccount.privateKey);
+    const destinationKeys = StellarSdk.Keypair.fromSecret(this.destinationAccount.privateKey);
+    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    server.loadAccount(this.oracleAccount.publicKey)
+      .then((source) => {
+        const transaction = new StellarSdk.TransactionBuilder(source, {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase: StellarSdk.Networks.TESTNET
+        })
+          .addOperation(StellarSdk.Operation.manageBuyOffer({
+            selling: this.oracleDollar,
+            buying: StellarSdk.Asset.native(),
+            buyAmount: '10',
+            price: '2',
+            offerId: 0
+          }))
+          .setTimeout(30)
+          .build();
+        transaction.sign(oracleKeys);
+        server.submitTransaction(transaction).then((transactionResult) => {
+          console.log(JSON.stringify(transactionResult, null, 2));
+          this.getAccount(oracleKeys.publicKey(), 'oracle');
+          this.getAccount(destinationKeys.publicKey(), 'destination');
+          this.createBuyOfferIsDone = true;
+        });
+      });
+  }
+  createSellOffer() {
+    console.log('createSellOffer');
+    const oracleKeys = StellarSdk.Keypair.fromSecret(this.oracleAccount.privateKey);
+    const destinationKeys = StellarSdk.Keypair.fromSecret(this.destinationAccount.privateKey);
+    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    server.loadAccount(this.destinationAccount.publicKey)
+      .then((source) => {
+        const transaction = new StellarSdk.TransactionBuilder(source, {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase: StellarSdk.Networks.TESTNET
+        })
+          .addOperation(StellarSdk.Operation.manageSellOffer({
+            selling: StellarSdk.Asset.native(),
+            buying: this.oracleDollar,
+            amount: '10',
+            price: '2',
+            offerId: 0
+          }))
+          .setTimeout(30)
+          .build();
+        transaction.sign(destinationKeys);
+        server.submitTransaction(transaction).then((transactionResult) => {
+          console.log(JSON.stringify(transactionResult, null, 2));
+          this.getAccount(oracleKeys.publicKey(), 'oracle');
+          this.getAccount(destinationKeys.publicKey(), 'destination');
+          this.createSendOfferIsDone = true;
         });
       });
   }

@@ -161,12 +161,14 @@
       </mat-list>
     </mat-grid-tile>
   </mat-grid-list>
-    <br/>
-    <br/>
+  <br/><br/><br/><br/><br/>
   <h1 class="mat-display-1" id="multisig">Multisig</h1>
   <mat-grid-list cols="3">
     <mat-grid-tile>
       <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Source Account</h2>
+        </mat-list-item>
         <mat-list-item role="listitem">
           <h2 class="mat-h2">Add oracle account signature to source account</h2>
         </mat-list-item>
@@ -181,6 +183,9 @@
             >
               Add signer
             </button>
+          </div>
+          <pre>  </pre>
+          <div class="button-row">
             <button
               type="button"
               mat-flat-button
@@ -190,6 +195,13 @@
             >
               Send 50 XLM
             </button>
+          </div>
+        </mat-list-item>
+        <mat-list-item role="listitem" *ngIf="error">
+          <h2 class="mat-h2" style="color:firebrick">Error: 1 signature from 2</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
             <button
               type="button"
               mat-flat-button
@@ -200,9 +212,6 @@
               Send XDR to Oracle
             </button>
           </div>
-        </mat-list-item>
-        <mat-list-item role="listitem" *ngIf="error">
-          <h2 class="mat-h2" style="color:firebrick">Error: 1 signature from 2</h2>
         </mat-list-item>
         <p *ngIf="sourceIsCreate">
           <mat-list-item role="listitem">
@@ -273,24 +282,23 @@
         <mat-list-item role="listitem">
           <h2 class="mat-h2">Destination Account</h2>
         </mat-list-item>
-        <mat-list-item role="listitem">
-          Public key:
-          <p *ngIf="destinationIsCreate">
-            {{sourceAccount.publicKey.substr(0,5) + '...'}}
-          </p>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item role="listitem" *ngFor="let element of destination.balances">
-          Balance:
-          <p *ngIf="destinationIsCreate">
-            <strong
-            >{{element.asset_type}} {{element.balance | number:'1.2'}}</strong
-            >
-          </p>
-        </mat-list-item>
+        <p *ngIf="destinationIsCreate">
+          <mat-list-item role="listitem">
+            Public key:
+              {{sourceAccount.publicKey.substr(0,5) + '...'}}
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of destination.balances">
+            Balance:
+              <strong
+              >{{element.asset_type}} {{element.balance | number:'1.2'}}</strong
+              >
+          </mat-list-item>
+        </p>
       </mat-list>
     </mat-grid-tile>
   </mat-grid-list>
+  <br/><br/><br/><br/><br/>
   <h1 class="mat-display-1" id="time_bound">Time bounds</h1>
   <mat-grid-list cols="3">
     <mat-grid-tile>
@@ -301,7 +309,7 @@
           <h2 class="mat-h2">Oracle Account</h2>
         </mat-list-item>
         <mat-list-item role="listitem">
-          <h2 class="mat-h2">Send 30 with lower time bound 30s: </h2>
+          <h2 class="mat-h2">Send 30 XLM with lower time bound 30s: </h2>
         </mat-list-item>
         <mat-list-item role="listitem">
           <div class="button-row">
@@ -359,12 +367,13 @@
       </mat-list>
     </mat-grid-tile>
   </mat-grid-list>
-  <h1 class="mat-display-1" id="time_bound">Sequence number</h1>
+  <br/><br/><br/><br/><br/>
+  <h1 class="mat-display-1" id="sequence">Sequence number</h1>
   <mat-grid-list cols="3">
     <mat-grid-tile>
       <mat-list role="list">
         <mat-list-item role="listitem">
-          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 1: </h2>
+          <h2 class="mat-h2">Send from Oracle to Dest 5 XLM with sequence number 1: </h2>
         </mat-list-item>
         <mat-list-item role="listitem">
           <div class="button-row">
@@ -381,7 +390,7 @@
         </mat-list-item>
         <br/>
         <mat-list-item role="listitem">
-          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 2: </h2>
+          <h2 class="mat-h2">Send from Oracle to Dest 5 XLM with sequence number 2: </h2>
         </mat-list-item>
         <mat-list-item role="listitem">
           <div class="button-row">
@@ -398,7 +407,7 @@
         </mat-list-item>
         <br/>
         <mat-list-item role="listitem">
-          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 3: </h2>
+          <h2 class="mat-h2">Send from Oracle to Dest 5 XLM with sequence number 3: </h2>
         </mat-list-item>
         <mat-list-item role="listitem">
           <div class="button-row">
@@ -438,17 +447,6 @@
             </strong>
           </mat-list-item>
           <mat-divider></mat-divider>
-          <mat-list-item role="listitem" *ngFor="let element of oracle.signers">
-            Signers:
-            <strong>
-              {{element.key.substr(0,5) + '...'}}
-            </strong>
-            with weight=
-            <strong>
-              {{element.weight}}
-            </strong>
-          </mat-list-item>
-          <mat-divider></mat-divider>
           <mat-list-item role="listitem">
             Sequence number:
             <strong>
@@ -475,17 +473,6 @@
             Balance:
             <strong>
               {{element.asset_type}} {{element.balance | number:'1.0'}}
-            </strong>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-          <mat-list-item role="listitem" *ngFor="let element of destination.signers">
-            Signers:
-            <strong>
-              {{element.key.substr(0,5) + '...'}}
-            </strong>
-            with weight=
-            <strong>
-              {{element.weight}}
             </strong>
           </mat-list-item>
           <mat-divider></mat-divider>
@@ -499,12 +486,13 @@
       </mat-list>
     </mat-grid-tile>
   </mat-grid-list>
-  <h1 class="mat-display-1" id="time_bound">Offer</h1>
+  <br/><br/><br/><br/><br/>
+  <h1 class="mat-display-1" id="issue_asset">Issue asset</h1>
   <mat-grid-list cols="3">
     <mat-grid-tile>
       <mat-list role="list">
         <mat-list-item role="listitem">
-          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 1: </h2>
+          <h2 class="mat-h2">Oracle account issues asset</h2>
         </mat-list-item>
         <mat-list-item role="listitem">
           <div class="button-row">
@@ -512,49 +500,10 @@
               type="button"
               mat-flat-button
               color="primary"
-              (click)="paymentWithNextSequenceNumber(0)"
-              [disabled]="!destinationIsCreate"
-            >
-              Send
+              (click)="issueAsset()">
+              Issue
             </button>
           </div>
-        </mat-list-item>
-        <br/>
-        <mat-list-item role="listitem">
-          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 2: </h2>
-        </mat-list-item>
-        <mat-list-item role="listitem">
-          <div class="button-row">
-            <button
-              type="button"
-              mat-flat-button
-              color="primary"
-              (click)="paymentWithNextSequenceNumber(1)"
-              [disabled]="!destinationIsCreate"
-            >
-              Send
-            </button>
-          </div>
-        </mat-list-item>
-        <br/>
-        <mat-list-item role="listitem">
-          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 3: </h2>
-        </mat-list-item>
-        <mat-list-item role="listitem">
-          <div class="button-row">
-            <button
-              type="button"
-              mat-flat-button
-              color="primary"
-              (click)="paymentWithNextSequenceNumber(2)"
-              [disabled]="!destinationIsCreate"
-            >
-              Send
-            </button>
-          </div>
-        </mat-list-item>
-        <mat-list-item role="listitem" *ngIf="sequenceError">
-          <h2 class="mat-h2" style="color:firebrick" id="seqError">Error: bad sequence number</h2>
         </mat-list-item>
       </mat-list>
     </mat-grid-tile>
@@ -562,6 +511,22 @@
       <mat-list role="list">
         <mat-list-item role="listitem">
           <h2 class="mat-h2">Oracle Account</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Send 50 oracleDollars</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="paymentFromOracleToDestination()"
+              [disabled]="!trustLineIsDone"
+            >
+              Send
+            </button>
+          </div>
         </mat-list-item>
         <p *ngIf="oracleIsCreate">
           <mat-list-item role="listitem">
@@ -577,24 +542,6 @@
               {{element.asset_type}} {{element.balance | number:'1.0'}}
             </strong>
           </mat-list-item>
-          <mat-divider></mat-divider>
-          <mat-list-item role="listitem" *ngFor="let element of oracle.signers">
-            Signers:
-            <strong>
-              {{element.key.substr(0,5) + '...'}}
-            </strong>
-            with weight=
-            <strong>
-              {{element.weight}}
-            </strong>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-          <mat-list-item role="listitem">
-            Sequence number:
-            <strong>
-              {{oracle.sequence}}
-            </strong>
-          </mat-list-item>
         </p>
       </mat-list>
     </mat-grid-tile>
@@ -602,6 +549,19 @@
       <mat-list role="list">
         <mat-list-item role="listitem">
           <h2 class="mat-h2">Destination Account</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="createTrustLine()"
+              [disabled]="!issueIsDone"
+            >
+              Create trustline
+            </button>
+          </div>
         </mat-list-item>
         <p *ngIf="destinationIsCreate">
           <mat-list-item role="listitem">
@@ -617,22 +577,92 @@
               {{element.asset_type}} {{element.balance | number:'1.0'}}
             </strong>
           </mat-list-item>
-          <mat-divider></mat-divider>
-          <mat-list-item role="listitem" *ngFor="let element of destination.signers">
-            Signers:
+        </p>
+      </mat-list>
+    </mat-grid-tile>
+  </mat-grid-list>
+  <br/><br/><br/><br/><br/>
+  <h1 class="mat-display-1" id="offers">Offers</h1>
+  <mat-grid-list cols="3">
+    <mat-grid-tile>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Oracle Account</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Create BUY offer:</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">10 XLM[1 XLM=2 OD]</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="createBuyOffer()"
+              [disabled]="!sendOracleDollarsIsDone"
+              >
+              Create offer
+            </button>
+          </div>
+        </mat-list-item>
+        <p *ngIf="oracleIsCreate">
+          <mat-list-item role="listitem">
+            Public key:
             <strong>
-              {{element.key.substr(0,5) + '...'}}
-            </strong>
-            with weight=
-            <strong>
-              {{element.weight}}
+              {{oracleAccount.publicKey.substr(0,10) + '...'}}
             </strong>
           </mat-list-item>
           <mat-divider></mat-divider>
-          <mat-list-item role="listitem">
-            Sequence number:
+          <mat-list-item role="listitem" *ngFor="let element of oracle.balances">
+            Balance:
             <strong>
-              {{destination.sequence}}
+              {{element.asset_type}} {{element.balance | number:'1.0'}}
+            </strong>
+          </mat-list-item>
+        </p>
+      </mat-list>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Destination Account</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Create SELL offer:</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">10 XLM[1 XLM=2 OD]</h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="createSellOffer()"
+              [disabled]="!createBuyOfferIsDone"
+            >
+              Create offer
+            </button>
+          </div>
+        </mat-list-item>
+        <p *ngIf="destinationIsCreate">
+          <mat-list-item role="listitem">
+            Public key:
+            <strong>
+              {{destinationAccount.publicKey.substr(0,10) + '...'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of destination.balances">
+            Balance:
+            <strong>
+              {{element.asset_type}} {{element.balance | number:'1.0'}}
             </strong>
           </mat-list-item>
         </p>
