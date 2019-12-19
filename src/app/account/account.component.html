@@ -359,4 +359,284 @@
       </mat-list>
     </mat-grid-tile>
   </mat-grid-list>
+  <h1 class="mat-display-1" id="time_bound">Sequence number</h1>
+  <mat-grid-list cols="3">
+    <mat-grid-tile>
+      <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 1: </h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="paymentWithNextSequenceNumber(0)"
+              [disabled]="!destinationIsCreate"
+            >
+              Send
+            </button>
+          </div>
+        </mat-list-item>
+        <br/>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 2: </h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="paymentWithNextSequenceNumber(1)"
+              [disabled]="!destinationIsCreate"
+            >
+              Send
+            </button>
+          </div>
+        </mat-list-item>
+        <br/>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 3: </h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="paymentWithNextSequenceNumber(2)"
+              [disabled]="!destinationIsCreate"
+            >
+              Send
+            </button>
+          </div>
+        </mat-list-item>
+        <mat-list-item role="listitem" *ngIf="sequenceError">
+          <h2 class="mat-h2" style="color:firebrick" id="seqError">Error: bad sequence number</h2>
+        </mat-list-item>
+      </mat-list>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Oracle Account</h2>
+        </mat-list-item>
+        <p *ngIf="oracleIsCreate">
+          <mat-list-item role="listitem">
+            Public key:
+            <strong>
+              {{oracleAccount.publicKey.substr(0,10) + '...'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of oracle.balances">
+            Balance:
+            <strong>
+              {{element.asset_type}} {{element.balance | number:'1.0'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of oracle.signers">
+            Signers:
+            <strong>
+              {{element.key.substr(0,5) + '...'}}
+            </strong>
+            with weight=
+            <strong>
+              {{element.weight}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem">
+            Sequence number:
+            <strong>
+              {{oracle.sequence}}
+            </strong>
+          </mat-list-item>
+        </p>
+      </mat-list>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Destination Account</h2>
+        </mat-list-item>
+        <p *ngIf="destinationIsCreate">
+          <mat-list-item role="listitem">
+            Public key:
+            <strong>
+              {{destinationAccount.publicKey.substr(0,10) + '...'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of destination.balances">
+            Balance:
+            <strong>
+              {{element.asset_type}} {{element.balance | number:'1.0'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of destination.signers">
+            Signers:
+            <strong>
+              {{element.key.substr(0,5) + '...'}}
+            </strong>
+            with weight=
+            <strong>
+              {{element.weight}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem">
+            Sequence number:
+            <strong>
+              {{destination.sequence}}
+            </strong>
+          </mat-list-item>
+        </p>
+      </mat-list>
+    </mat-grid-tile>
+  </mat-grid-list>
+  <h1 class="mat-display-1" id="time_bound">Offer</h1>
+  <mat-grid-list cols="3">
+    <mat-grid-tile>
+      <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 1: </h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="paymentWithNextSequenceNumber(0)"
+              [disabled]="!destinationIsCreate"
+            >
+              Send
+            </button>
+          </div>
+        </mat-list-item>
+        <br/>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 2: </h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="paymentWithNextSequenceNumber(1)"
+              [disabled]="!destinationIsCreate"
+            >
+              Send
+            </button>
+          </div>
+        </mat-list-item>
+        <br/>
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Send from Oracle to Dest 5 with sequence number 3: </h2>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <div class="button-row">
+            <button
+              type="button"
+              mat-flat-button
+              color="primary"
+              (click)="paymentWithNextSequenceNumber(2)"
+              [disabled]="!destinationIsCreate"
+            >
+              Send
+            </button>
+          </div>
+        </mat-list-item>
+        <mat-list-item role="listitem" *ngIf="sequenceError">
+          <h2 class="mat-h2" style="color:firebrick" id="seqError">Error: bad sequence number</h2>
+        </mat-list-item>
+      </mat-list>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Oracle Account</h2>
+        </mat-list-item>
+        <p *ngIf="oracleIsCreate">
+          <mat-list-item role="listitem">
+            Public key:
+            <strong>
+              {{oracleAccount.publicKey.substr(0,10) + '...'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of oracle.balances">
+            Balance:
+            <strong>
+              {{element.asset_type}} {{element.balance | number:'1.0'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of oracle.signers">
+            Signers:
+            <strong>
+              {{element.key.substr(0,5) + '...'}}
+            </strong>
+            with weight=
+            <strong>
+              {{element.weight}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem">
+            Sequence number:
+            <strong>
+              {{oracle.sequence}}
+            </strong>
+          </mat-list-item>
+        </p>
+      </mat-list>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-list role="list">
+        <mat-list-item role="listitem">
+          <h2 class="mat-h2">Destination Account</h2>
+        </mat-list-item>
+        <p *ngIf="destinationIsCreate">
+          <mat-list-item role="listitem">
+            Public key:
+            <strong>
+              {{destinationAccount.publicKey.substr(0,10) + '...'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of destination.balances">
+            Balance:
+            <strong>
+              {{element.asset_type}} {{element.balance | number:'1.0'}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem" *ngFor="let element of destination.signers">
+            Signers:
+            <strong>
+              {{element.key.substr(0,5) + '...'}}
+            </strong>
+            with weight=
+            <strong>
+              {{element.weight}}
+            </strong>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item role="listitem">
+            Sequence number:
+            <strong>
+              {{destination.sequence}}
+            </strong>
+          </mat-list-item>
+        </p>
+      </mat-list>
+    </mat-grid-tile>
+  </mat-grid-list>
  </div>

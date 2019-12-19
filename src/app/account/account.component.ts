@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {MatInputModule} from '@angular/material/input';
 import * as StellarSdk from 'stellar-sdk';
 import {THIS_EXPR} from '@angular/compiler/src/output/output_ast';
+import {sequence} from '@angular/animations';
+import {combineAll} from 'rxjs/operators';
 
 @Component({
   selector: 'app-account',
@@ -30,6 +32,9 @@ export class AccountComponent implements OnInit {
     privateKey: ''
   };
   time = 0;
+  startSequence = '0';
+  sequenceError = false;
+  isFirst = true;
   minTimeExpired = true;
   sourceIsCreate = false;
   oracleIsCreate = false;
@@ -267,11 +272,47 @@ export class AccountComponent implements OnInit {
         this.getAccount(destinationKeys.publicKey(), 'destination');
         if (Math.floor(Date.now() / 1000) - this.time < 30) {
           this.minTimeExpired = false;
-        }
-        else {
+        } else {
           this.minTimeExpired = true;
         }
       });
     }
+  }
+  paymentWithNextSequenceNumber(num: number) {
+    console.log('paymentWithNextSequenceNumber');
+    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    const oracleKeys = StellarSdk.Keypair.fromSecret(this.oracleAccount.privateKey);
+    const destinationKeys = StellarSdk.Keypair.fromSecret(this.destinationAccount.privateKey);
+    server.loadAccount(this.oracleAccount.publicKey)
+      .then((source) => {
+        if (this.isFirst) {
+          this.startSequence = source.sequence;
+          this.isFirst = false;
+        }
+        const account = new StellarSdk.Account(this.oracleAccount.publicKey, (parseInt(this.startSequence, 10) + num).toString());
+        const transaction = new StellarSdk.TransactionBuilder(account, {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase: StellarSdk.Networks.TESTNET
+        })
+          .addOperation(StellarSdk.Operation.payment({
+            destination: this.destinationAccount.publicKey,
+            asset: StellarSdk.Asset.native(),
+            amount: '5'
+          }))
+          .setTimeout(30)
+          .build();
+        transaction.sign(oracleKeys);
+        console.log(account.sequenceNumber());
+        server.submitTransaction(transaction).then((transactionResult) => {
+          console.log(JSON.stringify(transactionResult, null, 2));
+          this.getAccount(oracleKeys.publicKey(), 'oracle');
+          this.getAccount(destinationKeys.publicKey(), 'destination');
+        }).catch((error) => {
+          this.sequenceError = true;
+          setTimeout(function() {
+            document.getElementById('seqError').innerHTML = '';
+          }, 3000);
+        });
+      });
   }
 }
