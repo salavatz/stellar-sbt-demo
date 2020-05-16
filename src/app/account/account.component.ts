@@ -69,8 +69,8 @@ export class AccountComponent implements OnInit {
     this.destination.balances = [{ balance: 0 }];
     this.destination.sequence = 0;
     this.originAccount = {
-      publicKey: 'GDH44JN3XTOBKAKXI2NILE6OA4D2DETEW5QTXSDA3HBB5MTI36P6QUIO',
-      privateKey: 'SBMKV7HRFCSWSEYMCEXHMXTT35RGGBYFHXT77VT7ZXOMPAFFD5T2ZKNF'
+      publicKey: 'GBSU5FECL6QEPNIP6UD2SBFHWGAKNPVRPIKFXTZWDYF32HN6VISHMKD3',
+      privateKey: 'SCIAHXZTGLBLGF5EQO3MYCLAKKUK22FWX3Z7ROQVROJVENX32M2NMGX5'
     };
   }
 

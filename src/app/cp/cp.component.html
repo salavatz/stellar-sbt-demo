@@ -1,0 +1,262 @@
+<div content class="component">
+  <h1 class="mat-display-1" id="account">Create accounts</h1>
+  <button
+    type="button"
+    mat-flat-button
+    color="primary"
+    (click)="createAccount('origin')"
+  >
+    Create account
+  </button>
+  <ul>
+    <li *ngFor="let asset of assets | keyvalue: asIsOrder">
+      {{asset.key}} --> {{asset.value}}
+    </li>
+  </ul>
+  <button
+    type="button"
+    mat-flat-button
+    color="primary"
+    (click)="f1()"
+  >
+    Check
+  </button>
+  <br/><br/><br/>
+  <mat-progress-bar mode="indeterminate" *ngIf="progressBarValue">
+  </mat-progress-bar>
+  <mat-accordion multi="true">
+    <mat-expansion-panel *ngFor="let account of accountPrivateKeys; let i = index">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{accountNames[i]}}
+        </mat-panel-title>
+        <mat-panel-description>
+          {{accounts[i].id}}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <mat-grid-list cols="4" rowHeight="fit" style="height: 300px">
+        <mat-grid-tile [colspan]="3">
+          <mat-list role="list">
+            <mat-list-item role="listitem">
+              <p>
+                <mat-list-item role="listitem" *ngFor="let element of accounts[i].balances">
+                  Balance:
+                  <strong>
+                    {{element.asset_type}} {{element.balance | number:'1.0'}}
+                  </strong>
+                </mat-list-item>
+              </p>
+            </mat-list-item>
+            <mat-list-item role="listitem">
+              <form>
+                <mat-form-field>
+                  <mat-label>Amount</mat-label>
+                  <input matInput type="text" name="requestedMoney" [(ngModel)]="offers[i].requestedMoney" required/>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Rate</mat-label>
+                  <input matInput type="number" name="rate" [(ngModel)]="offers[i].rate" required/>
+                </mat-form-field>
+                <button
+                  type="button"
+                  mat-flat-button
+                  color="primary"
+                  (click)="getMoney(i)"
+                >
+                  GET
+                </button>
+              </form>
+            </mat-list-item>
+            <mat-list-item role="listitem">
+              <form>
+                <mat-form-field appearance="fill">
+                  <mat-label>Currency</mat-label>
+                  <mat-select name="buyOfferCurrency" [(ngModel)]="offers[i].buyOfferCurrency">
+                    <mat-option *ngFor="let asset of assetNames" [value]="asset">{{asset}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Amount</mat-label>
+                  <input matInput name="buyOfferPrice" [(ngModel)]="offers[i].buyOfferPrice"/>
+                </mat-form-field>
+                <button
+                  type="button"
+                  mat-flat-button
+                  color="primary"
+                  (click)="createBuyOfferFromA(i, offers[i].buyOfferPrice, 'XLM', offers[i].buyOfferCurrency, '1')"
+                >
+                  BUY OFFER
+                </button>
+              </form>
+            </mat-list-item>
+            <mat-list-item role="listitem">
+              <form>
+                <mat-form-field appearance="fill">
+                  <mat-label>Currency</mat-label>
+                  <mat-select name="sellOfferCurrency" [(ngModel)]="offers[i].sellOfferCurrency">
+                    <mat-option *ngFor="let asset of assetNames" [value]="asset">{{asset}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Amount</mat-label>
+                  <input matInput name="sellOfferPrice" [(ngModel)]="offers[i].sellOfferPrice"/>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Rate</mat-label>
+                  <input matInput type="number" name="rate" [(ngModel)]="offers[i].rate" required/>
+                </mat-form-field>
+                <button
+                  type="button"
+                  mat-flat-button
+                  color="primary"
+                  (click)="createSellOfferFromA(i, offers[i].sellOfferPrice, offers[i].sellOfferCurrency, 'XLM', (1 + offers[i].rate).toString())"
+                >
+                  SELL OFFER
+                </button>
+              </form>
+            </mat-list-item>
+            <mat-list-item role="listitem">
+              <form>
+                <button
+                  type="button"
+                  mat-flat-button
+                  color="primary"
+                  (click)="merge(i)"
+                >
+                  MERGE
+                </button>
+              </form>
+            </mat-list-item>
+          </mat-list>
+        </mat-grid-tile>
+        <mat-grid-tile>
+          <mat-list role="list">
+            <mat-list-item [style.background-color]="accountStages[i][stage]" role="listitem"
+                           *ngFor="let stage of stages" style="font-family: Verdana;font-size: medium;height: 20px;">
+              {{stage}}
+            </mat-list-item>
+          </mat-list>
+        </mat-grid-tile>
+      </mat-grid-list>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <br/><br/><br/>
+  <h1 class="mat-display-1" id="offer">Offers</h1>
+  <mat-accordion multi="true">
+    <mat-expansion-panel *ngFor="let accountId of offerCreators; let i = index">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{accountNames[accountId]}}
+        </mat-panel-title>
+        <mat-panel-description>
+          {{offersInNetwork[i][0]}}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <!--<div *ngIf="offersInNetwork[i][0] === 'Sell Offer'">
+        Amount:&nbsp;{{offersInNetwork[i][1].amount | number:'1.2'}}&nbsp;|
+        Exchange Rates:&nbsp;1&nbsp;<span *ngIf="!offersInNetwork[i][1].buying.asset_code">XML</span>
+        {{offersInNetwork[i][1].buying.asset_code}}&nbsp;=&nbsp;{{offersInNetwork[i][1].price | number:'1.2'}}
+        <span *ngIf="!offersInNetwork[i][1].selling.asset_code">XML</span>{{offersInNetwork[i][1].selling.asset_code}}&nbsp;|
+        Sequence:&nbsp;{{offersInNetwork[i][3]}}&nbsp;|
+        <span *ngIf="offersInNetwork[i][2] === 'not-submitted' ">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="submit(offersInNetwork[i][1].transaction)"
+          >
+            Submit
+          </button>
+        </span>
+      </div>-->
+      <div *ngIf="offersInNetwork[i][0] === 'Sell Offer'">
+        Amount:&nbsp;{{offersInNetwork[i][1].amount | number:'1.2'}}&nbsp;|
+        Exchange Rates:&nbsp;1&nbsp;{{offersInNetwork[i][1].sellingAsset}}&nbsp;
+        =&nbsp;{{offersInNetwork[i][1].priceBuyingIs1Selling| number:'1.2'}}&nbsp;
+        {{offersInNetwork[i][1].buyingAsset}}&nbsp;|
+        Sequence:&nbsp;{{offersInNetwork[i][1].transaction.sequence}}&nbsp;|
+        <span *ngIf="offersInNetwork[i][2] === 'not-submitted' ">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="submit(offersInNetwork[i][1].transaction)"
+          >
+            Submit
+          </button>
+        </span>
+      </div>
+      <div *ngIf="offersInNetwork[i][0] === 'Buy Offer'">
+        Amount:&nbsp;{{offersInNetwork[i][1].amount | number:'1.2'}}&nbsp;|
+        Exchange Rates:&nbsp;1&nbsp;{{offersInNetwork[i][1].buyingAsset}}&nbsp;
+        =&nbsp;{{offersInNetwork[i][1].priceSellingIs1Buying | number:'1.2'}}&nbsp;
+        {{offersInNetwork[i][1].sellingAsset}}&nbsp;|
+        Sequence:&nbsp;{{offersInNetwork[i][1].transaction.sequence}}&nbsp;|
+        <span *ngIf="offersInNetwork[i][2] === 'not-submitted' ">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="submit(offersInNetwork[i][1].transaction, offersInNetwork[i][3], offersInNetwork[i][1], accountId)"
+          >
+            Submit
+          </button>
+        </span>
+      </div>
+      <div *ngIf="offersInNetwork[i][0] === 'Payment'">
+        From:&nbsp;{{offersInNetwork[i][1].from}}&nbsp;|
+        To:&nbsp;{{offersInNetwork[i][1].to}}&nbsp;|
+        Amount:&nbsp;{{offersInNetwork[i][1].amount}}&nbsp;|
+        Asset:&nbsp;{{offersInNetwork[i][1].asset}}&nbsp;|
+        Sequence:&nbsp;{{offersInNetwork[i][1].transaction.sequence}}&nbsp;|
+        <span *ngIf="offersInNetwork[i][2] === 'not-submitted' ">
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="submitTransaction(offersInNetwork[i][1].transaction, offersInNetwork[i][1].from, offersInNetwork[i][1].to)"
+          >
+            Submit
+          </button>
+        </span>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <br/><br/><br/>
+  <h1 class="mat-display-1" id="oracle">Oracle Account</h1>
+  <br/><br/><br/>
+  <h1 class="mat-display-1" id="transactions">Transactions</h1>
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+    </ng-container>
+    <ng-container matColumnDef="sequence">
+      <th mat-header-cell *matHeaderCellDef>Sequence</th>
+      <td mat-cell *matCellDef="let element"> {{element.sequence}} </td>
+    </ng-container>
+    <ng-container matColumnDef="source">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Source</th>
+      <td mat-cell *matCellDef="let element"> {{element.source}} </td>
+    </ng-container>
+    <ng-container matColumnDef="destination">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Destination</th>
+      <td mat-cell *matCellDef="let element"> {{element.destination}} </td>
+    </ng-container>
+    <ng-container matColumnDef="amount">
+      <th mat-header-cell *matHeaderCellDef>Amount</th>
+      <td mat-cell *matCellDef="let element"> {{element.amount}} </td>
+    </ng-container>
+    <ng-container matColumnDef="assetCode">
+      <th mat-header-cell *matHeaderCellDef>Asset Code</th>
+      <td mat-cell *matCellDef="let element"> {{element.assetCode}} </td>
+    </ng-container>
+    <ng-container matColumnDef="assetIssuer">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Asset Issuer</th>
+      <td mat-cell *matCellDef="let element"> {{element.assetIssuer}} </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  <mat-paginator [pageSizeOptions]="[5, 10, 20, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
