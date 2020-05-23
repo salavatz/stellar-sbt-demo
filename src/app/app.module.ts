@@ -14,10 +14,11 @@ import { AngularFireModule } from '@angular/fire';
 import { environment } from '../environments/environment';
 import {Routes, RouterModule} from '@angular/router';
 import {
+  MatCardModule,
   MatFormFieldModule,
   MatInputModule,
   MatPaginatorModule,
-  MatProgressBarModule,
+  MatProgressBarModule, MatProgressSpinnerModule,
   MatSelectModule,
   MatSortModule
 } from '@angular/material';
@@ -50,9 +51,11 @@ const appRoutes: Routes = [
     BrowserAnimationsModule,
     MatExpansionModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
     FlexLayoutModule,
     MatGridListModule,
     MatSelectModule,
+    MatCardModule,
     FormsModule,
     AngularFireModule.initializeApp(environment.firebaseConfig)
   ],

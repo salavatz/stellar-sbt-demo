@@ -9,6 +9,7 @@ import {Transaction} from '../model/Transaction';
 import {OfferInfo} from '../model/OfferInfo';
 import {Context} from '../model/Context';
 import {StagesColor} from '../model/StagesColor';
+import {SpinnerActions} from '../model/SpinnerActions';
 
 @Component({
   selector: 'app-cp',
@@ -24,6 +25,7 @@ export class CpComponent implements OnInit, AfterViewInit {
   'limitTokenSupply', 'addSigner', 'createSellOfferFromH', 'removeSellOfferFromHx', 'createBuyOfferFromHx', 'paymentFromHToA',
   'paymentFromAToH', 'createBuyOfferFromH'];
   accounts: AccountRecord[] = [];
+  spinnerActions: SpinnerActions[] = [];
   offers: OfferInfo[] = [];
   offersInNetwork: any[] = [];
   accountContext: Context[] = new Array(this.accountNames.length);
@@ -54,17 +56,15 @@ export class CpComponent implements OnInit, AfterViewInit {
     this.assets.set('XLM', Asset.native());
     for (const name of this.accountNames) {
       this.accountStages.push(new StagesColor());
-    }
-    for (const index in this.stages) {
-      console.log(this.accountStages[index]);
+      this.spinnerActions.push(new SpinnerActions());
     }
     this.originAccount = {
-      publicKey: 'GAJJSJQ6JUXDEW2XXXM7NPTWM2VH5JGUDPWOF4AMYS56MWPLCQQQFC2A',
-      privateKey: 'SCM5F25M5NXXOWZRJCIWWZQU2KBYLPRE35XNMNLFTKIDEAP2DXQFPF4V'
+      publicKey: 'GBPZVEWAOZJLXJLO5SHM2C4QWFVX6YLVPUIED26ACZUAUOQZGJXQXOGZ',
+      privateKey: 'SB45QQ43N3K42X3VFDGK67KHUJRIH5IOVJPQU7623B46IFMEAMJQRAXS'
     };
     this.oracleAccount = {
-      publicKey: 'GDF2HVRVQJF3WQ2NDVOAL5S3TY7MB4DZIM6554T6TH7WJ4SI3K4OOCTZ',
-      privateKey: 'SDJS26JANDXSJ74UYZAL64EYASUN6VHFMBZIOP3BBMFZGEDEUOC74TVK'
+      publicKey: 'GDQWWD32Q3TDHJ6ICCNUPUDY3JJJCURVKGVCGZANH2B7NN46N6RD4PZN',
+      privateKey: 'SCRMVULQJAQW2W3GIDQKWR333LBL6GZ34PSNM2RSTTJDVLGJBILQK5MD'
     };
   }
 
@@ -81,6 +81,10 @@ export class CpComponent implements OnInit, AfterViewInit {
 
   updateAssets() {
     this.assetNames = Array.from(this.assets.keys());
+  }
+
+  getAssetName(): string {
+    return this.assetNames.find(item => item.startsWith('Alice'));
   }
 
   f1() {
@@ -163,7 +167,7 @@ export class CpComponent implements OnInit, AfterViewInit {
       await this.updateAccount(accountId);
       return destination;
     }
-    this.offers.push(new OfferInfo('0', '0', '0', '0', '0', 0));
+    this.offers.push(new OfferInfo('0', '0', '0', '0', '0', 0,0,0));
   }
 
   setAccount(keypair: Keypair) {
@@ -199,6 +203,7 @@ export class CpComponent implements OnInit, AfterViewInit {
   }
 
   async getMoney(accountId: number) {
+    this.spinnerActions[accountId].get = true;
     console.log('getMoney');
     const r = this.offers[accountId].rate;
     const amount = this.offers[accountId].requestedMoney;
@@ -235,6 +240,7 @@ export class CpComponent implements OnInit, AfterViewInit {
     this.accountStages[accountId].paymentFromAToH = '#b9f6ca';
     await this.createBuyOfferFromH(accountId, amount, 'XLM', debtAsset.code, (1 + r).toString(), holdingAccount, false, 1); // not-submitted
     this.accountStages[accountId].createBuyOfferFromH = '#b9f6ca';
+    this.spinnerActions[accountId].get = false;
   }
 
   async createTrust(accountKeypair: Keypair,
@@ -406,7 +412,8 @@ export class CpComponent implements OnInit, AfterViewInit {
         '',
         priceBuyingIs1Selling,
         transaction),
-      status]);
+      status,
+      false]);
     this.offerCreators.push(accountId);
   }
 
@@ -424,11 +431,13 @@ export class CpComponent implements OnInit, AfterViewInit {
         amount,
         assetCurrency,
         transaction),
-      'not-submitted']);
+      'not-submitted',
+    false]);
     this.offerCreators.push(accountId);
   }
 
-  async submitTransaction(transaction: StellarSdk.Transaction, fromAccountName: string, toAccountName: string) {
+  async submitTransaction(transaction: StellarSdk.Transaction, fromAccountName: string, toAccountName: string, i: number) {
+    this.offersInNetwork[i][this.offersInNetwork[i].length - 1] = true;
     let accountId;
     if (fromAccountName.includes('Holding Account')) {
       accountId = this.accountNames.indexOf(toAccountName);
@@ -439,6 +448,19 @@ export class CpComponent implements OnInit, AfterViewInit {
     this.addToTransactionTable(transaction);
     await this.updateAccount(accountId);
     console.log(transaction);
+    this.offersInNetwork[i][this.offersInNetwork[i].length - 1] = false;
+  }
+
+  async submitClick(transaction: StellarSdk.Transaction, i: number) {
+    this.offersInNetwork[i][this.offersInNetwork[i].length - 1] = true;
+    await this.submit(transaction);
+    this.offersInNetwork[i][this.offersInNetwork[i].length - 1] = false;
+  }
+
+  async submitClickBuy(transaction: StellarSdk.Transaction, overwrite: boolean, offer: Offer, accountId: number, i: number) {
+    this.offersInNetwork[i][this.offersInNetwork[i].length - 1] = true;
+    await this.submit(transaction, overwrite, offer, accountId);
+    this.offersInNetwork[i][this.offersInNetwork[i].length - 1] = false;
   }
 
   async submit(transaction: StellarSdk.Transaction, overwrite?: boolean, offer?: Offer, accountId?: number) {
@@ -481,7 +503,8 @@ export class CpComponent implements OnInit, AfterViewInit {
         amount,
         assetCurrency,
         transaction),
-      'not-submitted']);
+      'not-submitted',
+    false]);
     this.offerCreators.push(accountId);
   }
 
@@ -518,6 +541,7 @@ export class CpComponent implements OnInit, AfterViewInit {
                             sellingCurrency: string,
                             buyingCurrency: string,
                             priceSellingIs1Buying: string) {
+    this.spinnerActions[accountId].buy = true;
     console.log('createBuyOfferFromA');
     const sellingAsset = this.assets.get(sellingCurrency);
     const buyingAsset = this.assets.get(buyingCurrency);
@@ -551,6 +575,7 @@ export class CpComponent implements OnInit, AfterViewInit {
     await this.updateAccount(accountId);
     await this.updateAccount(offerCreatorAccountId);
     // minus
+    this.spinnerActions[accountId].buy = false;
   }
 
   async createBuyOfferFromH(accountId: number,
@@ -577,7 +602,8 @@ export class CpComponent implements OnInit, AfterViewInit {
         '',
         transaction),
       'not-submitted',
-      overwrite]);
+      overwrite,
+      false]);
     this.offerCreators.push(accountId);
   }
 
@@ -586,6 +612,7 @@ export class CpComponent implements OnInit, AfterViewInit {
                              sellingCurrency: string,
                              buyingCurrency: string,
                              priceBuyingIs1Selling: string) {
+    this.spinnerActions[accountId].sell = true;
     console.log('createSellOfferFromA');
     const sellingAsset = this.assets.get(sellingCurrency);
     const buyingAsset = this.assets.get(buyingCurrency);
@@ -611,9 +638,11 @@ export class CpComponent implements OnInit, AfterViewInit {
     }
     await this.updateAccount(accountId);
     // minus
+    this.spinnerActions[accountId].sell = false;
   }
 
   async merge(accountId: number) {
+    this.spinnerActions[accountId].merge = true;
     console.log('merge');
     const holdingAccount = this.accountContext[accountId].holdingAccount;
     const issuingAccount = this.accountContext[accountId].issuingAccount;
@@ -630,6 +659,7 @@ export class CpComponent implements OnInit, AfterViewInit {
     transactionForI.sign(Keypair.fromSecret(this.oracleAccount.privateKey));
     await this.server.submitTransaction(transactionForI);
     await this.updateAccount(accountId);
+    this.spinnerActions[accountId].merge = false;
   }
 
   async paymentFromHToI(accountId: number, amount: string, holdingAccount: Keypair, issuingAccount: Keypair, assetCurrency: string) {

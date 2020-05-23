@@ -1,25 +1,12 @@
 <div content class="component">
-  <h1 class="mat-display-1" id="account">Create accounts</h1>
+  <h1 class="mat-display-1" id="account">Accounts</h1>
   <button
     type="button"
     mat-flat-button
     color="primary"
     (click)="createAccount('origin')"
   >
-    Create account
-  </button>
-  <ul>
-    <li *ngFor="let asset of assets | keyvalue: asIsOrder">
-      {{asset.key}} --> {{asset.value}}
-    </li>
-  </ul>
-  <button
-    type="button"
-    mat-flat-button
-    color="primary"
-    (click)="f1()"
-  >
-    Check
+    CREATE ACCOUNT
   </button>
   <br/><br/><br/>
   <mat-progress-bar mode="indeterminate" *ngIf="progressBarValue">
@@ -34,98 +21,132 @@
           {{accounts[i].id}}
         </mat-panel-description>
       </mat-expansion-panel-header>
-      <mat-grid-list cols="4" rowHeight="fit" style="height: 300px">
+      <mat-grid-list cols="4" rowHeight="fit" style="height: 350px">
         <mat-grid-tile [colspan]="3">
           <mat-list role="list">
-            <mat-list-item role="listitem">
-              <p>
-                <mat-list-item role="listitem" *ngFor="let element of accounts[i].balances">
-                  Balance:
-                  <strong>
-                    {{element.asset_type}} {{element.balance | number:'1.0'}}
-                  </strong>
-                </mat-list-item>
-              </p>
+            <mat-list-item role="listitem" *ngFor="let element of accounts[i].balances">
+              Balance:&nbsp;
+              <b *ngIf="element.asset_type === 'native'">
+                XLM {{element.balance | number:'1.0'}}
+              </b>
+              <b *ngIf="element.asset_type !== 'native'">
+                {{getAssetName()}} {{element.balance | number:'1.0'}}
+              </b>
             </mat-list-item>
             <mat-list-item role="listitem">
-              <form>
-                <mat-form-field>
-                  <mat-label>Amount</mat-label>
-                  <input matInput type="text" name="requestedMoney" [(ngModel)]="offers[i].requestedMoney" required/>
-                </mat-form-field>
-                <mat-form-field>
-                  <mat-label>Rate</mat-label>
-                  <input matInput type="number" name="rate" [(ngModel)]="offers[i].rate" required/>
-                </mat-form-field>
-                <button
-                  type="button"
-                  mat-flat-button
-                  color="primary"
-                  (click)="getMoney(i)"
-                >
-                  GET
-                </button>
-              </form>
+              <div class="spinner-wrapper">
+                <form>
+                  <mat-form-field>
+                    <mat-label>Amount</mat-label>
+                    <input matInput type="text" name="requestedMoney" [(ngModel)]="offers[i].requestedMoney" required/>
+                  </mat-form-field>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <mat-form-field>
+                    <mat-label>Rate</mat-label>
+                    <input matInput type="number" name="rate" [(ngModel)]="offers[i].rate" required/>
+                  </mat-form-field>
+                  &nbsp;&nbsp;&nbsp;
+                  <button
+                    type="button"
+                    mat-flat-button
+                    color="primary"
+                    (click)="getMoney(i)"
+                  >
+                    GET
+                  </button>
+                </form>
+                &nbsp;&nbsp;&nbsp;
+                <mat-spinner *ngIf="spinnerActions[i].get">
+                </mat-spinner>
+              </div>
             </mat-list-item>
+            <br/>
             <mat-list-item role="listitem">
-              <form>
-                <mat-form-field appearance="fill">
-                  <mat-label>Currency</mat-label>
-                  <mat-select name="buyOfferCurrency" [(ngModel)]="offers[i].buyOfferCurrency">
-                    <mat-option *ngFor="let asset of assetNames" [value]="asset">{{asset}}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field>
-                  <mat-label>Amount</mat-label>
-                  <input matInput name="buyOfferPrice" [(ngModel)]="offers[i].buyOfferPrice"/>
-                </mat-form-field>
-                <button
-                  type="button"
-                  mat-flat-button
-                  color="primary"
-                  (click)="createBuyOfferFromA(i, offers[i].buyOfferPrice, 'XLM', offers[i].buyOfferCurrency, '1')"
-                >
-                  BUY OFFER
-                </button>
-              </form>
+              <div class="spinner-wrapper">
+                <form>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Currency</mat-label>
+                    <mat-select name="buyOfferCurrency" [(ngModel)]="offers[i].buyOfferCurrency">
+                      <mat-option *ngFor="let asset of assetNames" [value]="asset">{{asset}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  &nbsp;&nbsp;&nbsp;
+                  <mat-form-field>
+                    <mat-label>Amount</mat-label>
+                    <input matInput name="buyOfferPrice" [(ngModel)]="offers[i].buyOfferPrice"/>
+                  </mat-form-field>
+                  &nbsp;&nbsp;&nbsp;
+                  <mat-form-field>
+                    <mat-label>Rate</mat-label>
+                    <input matInput type="number" name="rate" [(ngModel)]="offers[i].rateBuy" required/>
+                  </mat-form-field>
+                  &nbsp;&nbsp;&nbsp;
+                  <button
+                    type="button"
+                    mat-flat-button
+                    color="primary"
+                    (click)="createBuyOfferFromA(i, offers[i].buyOfferPrice, 'XLM', offers[i].buyOfferCurrency, (1 + offers[i].rateBuy).toString())"
+                  >
+                    BUY OFFER
+                  </button>
+                </form>
+                &nbsp;&nbsp;&nbsp;
+                <mat-spinner *ngIf="spinnerActions[i].buy">
+                </mat-spinner>
+              </div>
             </mat-list-item>
+            <br/>
             <mat-list-item role="listitem">
-              <form>
-                <mat-form-field appearance="fill">
-                  <mat-label>Currency</mat-label>
-                  <mat-select name="sellOfferCurrency" [(ngModel)]="offers[i].sellOfferCurrency">
-                    <mat-option *ngFor="let asset of assetNames" [value]="asset">{{asset}}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field>
-                  <mat-label>Amount</mat-label>
-                  <input matInput name="sellOfferPrice" [(ngModel)]="offers[i].sellOfferPrice"/>
-                </mat-form-field>
-                <mat-form-field>
-                  <mat-label>Rate</mat-label>
-                  <input matInput type="number" name="rate" [(ngModel)]="offers[i].rate" required/>
-                </mat-form-field>
-                <button
-                  type="button"
-                  mat-flat-button
-                  color="primary"
-                  (click)="createSellOfferFromA(i, offers[i].sellOfferPrice, offers[i].sellOfferCurrency, 'XLM', (1 + offers[i].rate).toString())"
-                >
-                  SELL OFFER
-                </button>
-              </form>
+              <div class="spinner-wrapper">
+                <form>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Currency</mat-label>
+                    <mat-select name="sellOfferCurrency" [(ngModel)]="offers[i].sellOfferCurrency">
+                      <mat-option *ngFor="let asset of assetNames" [value]="asset">{{asset}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  &nbsp;&nbsp;&nbsp;
+                  <mat-form-field>
+                    <mat-label>Amount</mat-label>
+                    <input matInput name="sellOfferPrice" [(ngModel)]="offers[i].sellOfferPrice"/>
+                  </mat-form-field>
+                  &nbsp;&nbsp;&nbsp;
+                  <mat-form-field>
+                    <mat-label>Rate</mat-label>
+                    <input matInput type="number" name="rate" [(ngModel)]="offers[i].rateSell" required/>
+                  </mat-form-field>
+                  &nbsp;&nbsp;&nbsp;
+                  <button
+                    type="button"
+                    mat-flat-button
+                    color="primary"
+                    (click)="createSellOfferFromA(i, offers[i].sellOfferPrice, offers[i].sellOfferCurrency, 'XLM', (1 + offers[i].rateSell).toString())"
+                  >
+                    SELL OFFER
+                  </button>
+                </form>
+                &nbsp;&nbsp;&nbsp;
+                <mat-spinner *ngIf="spinnerActions[i].sell">
+                </mat-spinner>
+              </div>
             </mat-list-item>
+            <br/>
             <mat-list-item role="listitem">
-              <form>
-                <button
-                  type="button"
-                  mat-flat-button
-                  color="primary"
-                  (click)="merge(i)"
-                >
-                  MERGE
-                </button>
-              </form>
+              <div class="spinner-wrapper">
+                <form>
+                  <button
+                    type="button"
+                    mat-flat-button
+                    color="primary"
+                    (click)="merge(i)"
+                  >
+                    MERGE
+                  </button>
+                </form>
+                &nbsp;&nbsp;&nbsp;
+                <mat-spinner *ngIf="spinnerActions[i].merge">
+                </mat-spinner>
+              </div>
             </mat-list-item>
           </mat-list>
         </mat-grid-tile>
@@ -169,7 +190,7 @@
           </button>
         </span>
       </div>-->
-      <div *ngIf="offersInNetwork[i][0] === 'Sell Offer'">
+      <div *ngIf="offersInNetwork[i][0] === 'Sell Offer'" class="spinner-wrapper-list">
         Amount:&nbsp;{{offersInNetwork[i][1].amount | number:'1.2'}}&nbsp;|
         Exchange Rates:&nbsp;1&nbsp;{{offersInNetwork[i][1].sellingAsset}}&nbsp;
         =&nbsp;{{offersInNetwork[i][1].priceBuyingIs1Selling| number:'1.2'}}&nbsp;
@@ -180,13 +201,16 @@
             type="button"
             mat-flat-button
             color="primary"
-            (click)="submit(offersInNetwork[i][1].transaction)"
+            (click)="submitClick(offersInNetwork[i][1].transaction, i)"
           >
             Submit
           </button>
         </span>
+        &nbsp;&nbsp;&nbsp;
+        <mat-spinner *ngIf="offersInNetwork[i][this.offersInNetwork[i].length - 1]">
+        </mat-spinner>
       </div>
-      <div *ngIf="offersInNetwork[i][0] === 'Buy Offer'">
+      <div *ngIf="offersInNetwork[i][0] === 'Buy Offer'" class="spinner-wrapper-list">
         Amount:&nbsp;{{offersInNetwork[i][1].amount | number:'1.2'}}&nbsp;|
         Exchange Rates:&nbsp;1&nbsp;{{offersInNetwork[i][1].buyingAsset}}&nbsp;
         =&nbsp;{{offersInNetwork[i][1].priceSellingIs1Buying | number:'1.2'}}&nbsp;
@@ -197,13 +221,16 @@
             type="button"
             mat-flat-button
             color="primary"
-            (click)="submit(offersInNetwork[i][1].transaction, offersInNetwork[i][3], offersInNetwork[i][1], accountId)"
+            (click)="submitClickBuy(offersInNetwork[i][1].transaction, offersInNetwork[i][3], offersInNetwork[i][1], accountId, i)"
           >
             Submit
           </button>
         </span>
+        &nbsp;&nbsp;&nbsp;
+        <mat-spinner *ngIf="offersInNetwork[i][this.offersInNetwork[i].length - 1]">
+        </mat-spinner>
       </div>
-      <div *ngIf="offersInNetwork[i][0] === 'Payment'">
+      <div *ngIf="offersInNetwork[i][0] === 'Payment'" class="spinner-wrapper-list">
         From:&nbsp;{{offersInNetwork[i][1].from}}&nbsp;|
         To:&nbsp;{{offersInNetwork[i][1].to}}&nbsp;|
         Amount:&nbsp;{{offersInNetwork[i][1].amount}}&nbsp;|
@@ -214,16 +241,17 @@
             type="button"
             mat-flat-button
             color="primary"
-            (click)="submitTransaction(offersInNetwork[i][1].transaction, offersInNetwork[i][1].from, offersInNetwork[i][1].to)"
+            (click)="submitTransaction(offersInNetwork[i][1].transaction, offersInNetwork[i][1].from, offersInNetwork[i][1].to, i)"
           >
             Submit
           </button>
         </span>
+        &nbsp;&nbsp;&nbsp;
+        <mat-spinner *ngIf="offersInNetwork[i][this.offersInNetwork[i].length - 1]">
+        </mat-spinner>
       </div>
     </mat-expansion-panel>
   </mat-accordion>
-  <br/><br/><br/>
-  <h1 class="mat-display-1" id="oracle">Oracle Account</h1>
   <br/><br/><br/>
   <h1 class="mat-display-1" id="transactions">Transactions</h1>
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>

@@ -4,7 +4,7 @@ export class OfferInfo {
               public buyOfferCurrency: string,
               public sellOfferPrice: string,
               public sellOfferCurrency: string,
-              public rate: number
-  ) {
-  }
+              public rate: number,
+              public rateSell: number,
+              public rateBuy: number) {}
 }
