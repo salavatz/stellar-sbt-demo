@@ -12,6 +12,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTableModule } from '@angular/material/table';
 import { AngularFireModule } from '@angular/fire';
 import { environment } from '../environments/environment';
+import {Routes, RouterModule} from '@angular/router';
 import {
   MatFormFieldModule,
   MatInputModule,
@@ -24,6 +25,11 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import { FormsModule } from '@angular/forms';
 import { CpComponent } from './cp/cp.component';
 
+const appRoutes: Routes = [
+  { path: '', component: CpComponent},
+  { path: 'training', component: AccountComponent}
+];
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -33,6 +39,7 @@ import { CpComponent } from './cp/cp.component';
     CpComponent
   ],
   imports: [
+    RouterModule.forRoot(appRoutes),
     MatTableModule,
     BrowserModule,
     MatInputModule,
