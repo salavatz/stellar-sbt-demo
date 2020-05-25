@@ -69,8 +69,8 @@ export class AccountComponent implements OnInit {
     this.destination.balances = [{ balance: 0 }];
     this.destination.sequence = 0;
     this.originAccount = {
-      publicKey: 'GBSU5FECL6QEPNIP6UD2SBFHWGAKNPVRPIKFXTZWDYF32HN6VISHMKD3',
-      privateKey: 'SCIAHXZTGLBLGF5EQO3MYCLAKKUK22FWX3Z7ROQVROJVENX32M2NMGX5'
+      publicKey: 'GDJPXUYMFQ44QSNZ3FVLH2O4JPNHBAQTPLZ4INUKIKEJOOV7YMJUDWSW',
+      privateKey: 'SBBOEIA4FNLFLXRATUDFJ3CF4F6XIMAOQDUFABC3FYYXEVNJNBVF2T7D'
     };
   }
 
@@ -258,7 +258,7 @@ export class AccountComponent implements OnInit {
       server.loadAccount(this.oracleAccount.publicKey)
         .then((oracle) => {
           const transaction = new StellarSdk.TransactionBuilder(oracle, {
-            timebounds: {minTime: this.time + 30, maxTime: this.time + 3600},
+            timebounds: {minTime: this.time + 15, maxTime: this.time + 3600},
             fee: StellarSdk.BASE_FEE,
             networkPassphrase: StellarSdk.Networks.TESTNET
           })
@@ -274,13 +274,16 @@ export class AccountComponent implements OnInit {
         });
     } else {
       server.submitTransaction(this.transactionWithTimeBound).then((transactionResult) => {
+        this.minTimeExpired = true;
         this.getAccount(oracleKeys.publicKey(), 'oracle');
         this.getAccount(destinationKeys.publicKey(), 'destination');
-        if (Math.floor(Date.now() / 1000) - this.time < 30) {
-          this.minTimeExpired = false;
-        } else {
-          this.minTimeExpired = true;
-        }
+        // if (Math.floor(Date.now() / 1000) - this.time < 30) {
+        //   this.minTimeExpired = false;
+        // } else {
+        //   this.minTimeExpired = true;
+        // }
+      }).catch((error) => {
+        this.minTimeExpired = false;
       });
     }
   }
@@ -317,7 +320,7 @@ export class AccountComponent implements OnInit {
           this.sequenceError = true;
           setTimeout(function() {
             document.getElementById('seqError').innerHTML = '';
-          }, 3000);
+          }, 10000);
         });
       });
   }
